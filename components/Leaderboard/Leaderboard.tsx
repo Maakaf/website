@@ -10,6 +10,7 @@ const LeaderboardPage: React.FC = () => {
 
   useEffect(() => {
     fetchLeaderboard().then((data) => {
+      console.log(data);
       setData(data);
       setLoading(false);
     }).catch((e) => {
@@ -27,9 +28,9 @@ const LeaderboardPage: React.FC = () => {
   const contributors3 = addContributorsInsightsInsights(data[2]);
   return (
     <>
-      <ContributionsList data={contributors} key={`contributors`} />
-      <ContributionsList data={contributors2} key={`contributors2`} />
       <ContributionsList data={contributors3} key={`contributors3`} />
+      <ContributionsList data={contributors2} key={`contributors2`} />
+      <ContributionsList data={contributors} key={`contributors`} />
     </>
   )
 };
@@ -43,13 +44,13 @@ interface PersonPlace {
 }
 
 export const ContributionsList: React.FC<{ data: ContributorsInsights }> = ({ data }) => {
-  const mappedData = data.members.map(mapMembers);
-  const sinceAndUntil = formatSinceAndUntil(data.since, data.until);
+  //filter out members with name [bot] in it
+  const mappedData = data.members.map(mapMembers).filter(p => !p.name.includes('[bot]'));
 
   return (
     <div className="font-inter container mx-auto p-4">
       <h3 className="text-2xl font-bold mb-4">Our Contributions In Maakaf</h3>
-      <p className="text-gray-600 mb-4">From {sinceAndUntil.since} to {sinceAndUntil.until}</p>
+      <p className="text-gray-400 mb-4">{formatSinceAndUntil(data.since, data.until)}</p>
       <ul className="grid gap-3">
         <li><h4>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h4></li>
         {mappedData.filter(p => p.score).map((data, ind) => (

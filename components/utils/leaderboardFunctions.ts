@@ -3,25 +3,17 @@
 import { Analytics } from "@/actions/fetchLeaderboardData";
 
 export function formatSinceAndUntil(since: number, until: number) {
-  const bigScreenFormatter = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const sinceDate = new Date(since*1000);
+  const sinceYear = sinceDate.getFullYear();
+  const sinceMonth = String(sinceDate.getMonth() + 1).padStart(2, "0");
+  const sinceDay = String(sinceDate.getDate()).padStart(2, "0");
 
-  const smallScreenFormatter = new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const datesText = {
-    since: bigScreenFormatter.format(since),
-    until: bigScreenFormatter.format(until),
-    smallSince: smallScreenFormatter.format(since),
-    smallUntil: smallScreenFormatter.format(until),
-  };
-  return datesText;
+  const untilDate = new Date(until*1000);
+  const untilYear = untilDate.getFullYear();
+  const untilMonth = String(untilDate.getMonth() + 1).padStart(2, "0");
+  const untilDay = String(untilDate.getDate()).padStart(2, "0");
+  
+  return `From ${sinceDay}-${sinceMonth}-${sinceYear} to ${untilDay}-${untilMonth}-${untilYear}`;
 };
 
 // Insights:
