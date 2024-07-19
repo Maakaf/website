@@ -70,7 +70,7 @@ export const ContributionsList: React.FC<{ data: ContributorsInsights }> = ({ da
         <h6 className="text-gray-400 mb-4 text-center ml-10">{formatSinceAndUntil(data.since, data.until)}</h6>
         <h6 className='text-center'>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h6>
       </div>
-      <ul className="grid gap-3">
+      <ul className="grid min:grid-cols-1 grid-cols-3 gap-3">
         {mappedData.filter(p => p.score).map((data, ind) => (
           <li key={data.node_id}>
             <DisplayPerson2 data={data} place={ind + 1} />
