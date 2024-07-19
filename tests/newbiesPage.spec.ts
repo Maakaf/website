@@ -11,7 +11,7 @@ test.describe('Test Newbies page', () => {
     await page.waitForNavigation();
 
     const pageTitle = await page.title();
-    expect(pageTitle).toContain('Newbies');
+    expect(pageTitle).toContain('מצטרפים חדשים - Newbies | מעקף');
   });
 
   test('should render NEWBIES', async ({ page }) => {

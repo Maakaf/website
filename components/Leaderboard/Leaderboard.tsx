@@ -1,425 +1,128 @@
 "use client"
-import fetchLeaderboard from '@/actions/fetchLeaderboardData';
-import { Analitycs } from '@/app/[locale]/leaderboard/getData';
-import { StarIcon } from 'lucide-react';
+import fetchLeaderboard, { Analytics } from '@/actions/fetchLeaderboardData';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { ContributorsInsights, addContributorsInsightsInsights, formatSinceAndUntil, mapMembers } from '../utils/leaderboardFunctions';
 
 const LeaderboardPage: React.FC = () => {
+  const [data, setData] = useState<[Analytics, Analytics, Analytics]>();
+  const [isLoading, setLoading] = useState(true);
 
-
-  const [data, setData] = useState<Analitycs>()
-  const [isLoading, setLoading] = useState(true)
- 
   useEffect(() => {
     fetchLeaderboard().then((data) => {
-      setData(data)
-      setLoading(false)
+      console.log(data);
+      setData(data);
+      setLoading(false);
     }).catch((e) => {
-      console.error(e)
-      setLoading(false)
-    })
-  }, [])
- 
-  if (isLoading) return <p>Loading...</p>
-  if (!data) return <p>No profile data</p>
+      console.error(e);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, []);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (!data) return <p>No profile data</p>;
+
+  const contributors = addContributorsInsightsInsights(data[0]);
+  const contributors2 = addContributorsInsightsInsights(data[1]);
+  const contributors3 = addContributorsInsightsInsights(data[2]);
   return (
     <>
-    <Leaderboard leaderboard={data} />
+      <h3 className="text-2xl font-bold mb-2 text-center">Our Contributions In Maakaf</h3>
+      <div className="sticky top-20 dark:bg-gray-600 z-10 shadow-md">
+        <div className="font-bold flex flex-row justify-center p-4">
+          <a href={"#allTimes"} className="transition duration-300 group px-4">
+            <span>{"All Times Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+          <a href={"#lastMonth"} className="transition duration-300 group px-4">
+            <span>{"Last Month Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+          <a href={"#lastWeek"} className="transition duration-300 group px-4">
+            <span>{"Last Week Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+        </div>
+      </div>
+      <ContributionsList data={contributors3} key={`contributors3`} />
+      <ContributionsList data={contributors2} key={`contributors2`} />
+      <ContributionsList data={contributors} key={`contributors`} />
     </>
   )
-}
-
-
-const Leaderboard: React.FC<{ leaderboard: Analitycs }> = props => {
-  const since = new Date(props.leaderboard.since);
-  const until = new Date(props.leaderboard.until);
-  const bigScreenFormatter = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
-  const smallScreenFormatter = new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const datesText = {
-    since: bigScreenFormatter.format(since),
-    until: bigScreenFormatter.format(until),
-    smallSince: smallScreenFormatter.format(since),
-    smallUntil: smallScreenFormatter.format(until),
-  };
-  const mappedData = props.leaderboard.members.map(data => {
-    return {
-      ...data,
-      projects_name_urls: data.projects_names.map(
-        p => `https://github.com/${p.url}`
-      ),
-      loginUrl: `https://github.com/${data.name}`,
-    };
-  });
-  const firstPlace = mappedData[0];
-  const secondPlace = mappedData[1];
-  const thirdPlace = mappedData[2];
-
-  return (
-    <div dir="ltr" className="font-inter">
-      <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto  ">
-        <div className="col-span-full">
-          <h1 className="pb-8 pt-6">Leaderboard</h1>
-          <Tabs />
-          <p className="[text-wrap:balance] text-indigo-800">
-            {datesText.since} <span className="">-</span> {datesText.until}
-          </p>
-        </div>
-        <FirstPlacePerson data={firstPlace} place={1} />
-        <DisplaySecoundPerson data={secondPlace} place={2} />
-        <DisplayThirdPerson data={thirdPlace} place={3} />
-        {mappedData.slice(3, -1).map((data, ind) => {
-          return (
-            <DisplayPerson data={data} key={data.node_id} place={ind + 4} />
-          );
-        })}
-      </div>
-    </div>
-  );
 };
 
-export default LeaderboardPage;
-
 interface PersonPlace {
-  data: Analitycs['members'][number] & {
+  data: ContributorsInsights['members'][number] & {
     loginUrl: string;
     projects_name_urls: string[];
   };
   place: number;
 }
 
-export const DisplayPerson: React.FC<PersonPlace> = ({ data, place }) => {
-  return (
-    <CardWarper
-      className="flex gap-2 ring-1 ring-indigo-900/80 rounded-md p-4 relative "
-      key={data.node_id}
-    >
-      <Image
-        src={data.avatar_url}
-        className="rounded-full w-[50px] h-[50px] "
-        alt={data.name}
-        width={50}
-        height={50}
-      />
-      <div className="flex flex-col w-full  ">
-        <a
-          className="flex justify-between flex-wrap gap-2 "
-          href={data.loginUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="underline first-letter:capitalize tracking-wider">
-            {data.name}
-          </span>
-          <div className="flex gap-2 text-indigo-700">
-            <div>Score: {data.score}</div>
-          </div>
-        </a>
-        <div className="flex gap-2 pb-3">
-          <div className="flex gap-2 ">
-            <div className="text-green-300">
-              <span>{data.stats.additions}</span>
-              <span>++</span>
-            </div>
-            <div className="text-red-300">
-              <span>{data.stats.deletions}</span>
-              <span>--</span>
-            </div>
-          </div>
-          <div className="text-indigo-800 flex gap-2  ">
-            <span>Commit</span>
-            <span>{data.stats.commits}</span>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <h4 className="text-xs flex-grow w-full">Projects:</h4>
-          {data.projects_names.map((project, ind) => {
-            return (
-              <a
-                key={ind}
-                href={data.projects_name_urls[ind]}
-                className="flex gap-1 items-center underline text-indigo-300 text-xs"
-              >
-                <StarIcon size={16} />
-                <span>{project.name}</span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </CardWarper>
-  );
-};
+export const ContributionsList: React.FC<{ data: ContributorsInsights }> = ({ data }) => {
+  //filter out members with name [bot] in it
+  const mappedData = data.members.map(mapMembers).filter(p => !p.name.includes('[bot]'));
 
-export const DisplaySecoundPerson: React.FC<PersonPlace> = ({
-  data,
-  place,
-}) => {
   return (
-    <CardWarper
-      className="flex gap-2 ring-1 ring-indigo-900/80 rounded-md p-4 row-span-2 relative "
-      key={data.node_id}
-    >
-      <Image
-        src={data.avatar_url}
-        className="rounded-full w-[50px] h-[50px]"
-        alt={data.name}
-        width={50}
-        height={50}
-      />
-      <div className="flex flex-col w-full  ">
-        <a
-          className="flex justify-between flex-wrap gap-2 "
-          href={data.loginUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="underline first-letter:capitalize text-xl tracking-wider">
-            {data.name}
-          </span>
-          <div className="flex gap-2 text-indigo-700">
-            <div>Score: {data.score}</div>
-          </div>
-        </a>
-        <div className="flex gap-2 flex-wrap pb-3">
-          <div className="flex gap-2 ">
-            <div className="text-green-300">
-              <span>{data.stats.additions}++</span>
-            </div>
-            <div className="text-red-300">
-              <span>{data.stats.deletions}--</span>
-            </div>
-          </div>
-          <div className="text-indigo-800 flex gap-2   ">
-            <span>Coomit</span>
-            <span>{data.stats.commits}</span>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <h4 className="text-xs flex-grow w-full">Projects:</h4>
-          {data.projects_names.map((project, ind) => {
-            return (
-              <a
-                key={ind}
-                href={data.projects_name_urls[ind]}
-                className="flex gap-1 items-center underline text-indigo-300 text-xs"
-              >
-                <StarIcon size={16} />
-                <span>{project.name}</span>
-              </a>
-            );
-          })}
-        </div>
+    <div className="font-inter container mx-auto m-4 bg-gray-600" id={data.stat === "allTimes" ? "allTimes" : data.stat === "lastMonth" ? "lastMonth" : "lastWeek"}>
+      <div className="flex flex-row justify-center">
+        <h4 className="text-gray-400 mb-4 text-center ml-10">{formatSinceAndUntil(data.since, data.until)}</h4>
+        <h4 className='text-center'>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h4>
       </div>
-    </CardWarper>
+      <ul className="grid grid-cols-3 gap-2">
+        {mappedData.filter(p => p.score).map((data, ind) => (
+          <li key={data.node_id}>
+            <DisplayPerson2 data={data} place={ind + 1} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
-};
-
-export const DisplayThirdPerson: React.FC<PersonPlace> = ({ data, place }) => {
-  return (
-    <CardWarper key={data.node_id}>
-      <Image
-        src={data.avatar_url}
-        className="rounded-full w-[50px] h-[50px] "
-        alt={data.name}
-        width={50}
-        height={50}
-      />
-      <div className="flex flex-col w-full  ">
-        <a
-          className="flex justify-between flex-wrap gap-2 "
-          href={data.loginUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="underline first-letter:capitalize tracking-wider">
-            {data.name}
-          </span>
-          <div className="flex gap-2 text-indigo-700">
-            <div>Score: {data.score}</div>
-            {place}#
-          </div>
-        </a>
-        <div className="flex gap-2">
-          <div className="flex gap-2 ">
-            <div className="text-green-300">
-              <span>{data.stats.additions}</span>
-              <span>++</span>
-            </div>
-            <div className="text-red-300">
-              <span>{data.stats.deletions}</span>
-              <span>--</span>
-            </div>
-          </div>
-          <div className="text-indigo-800 flex gap-2 pb-3 ">
-            <span>Coomit</span>
-            <span>{data.stats.commits}</span>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <h4 className="text-xs flex-grow w-full">Projects:</h4>
-          {data.projects_names.map((project, ind) => {
-            return (
-              <a
-                key={ind}
-                href={data.projects_name_urls[ind]}
-                className="flex gap-1 items-center underline text-indigo-300 text-xs"
-              >
-                <StarIcon size={16} />
-                <span>{project.name}</span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </CardWarper>
-  );
-};
-
-export const FirstPlacePerson: React.FC<PersonPlace> = ({ data, place }) => {
-  return (
-    <CardWarper
-      className="flex gap-2 ring-1 ring-indigo-900/80 rounded-md p-4 md:p-4 col-span-full relative  "
-      key={data.node_id}
-    >
-      <Image
-        src={data.avatar_url}
-        className="rounded-full w-[100px] h-[100px]  "
-        alt={data.name}
-        width={100}
-        height={100}
-      />
-      <div className="flex flex-col w-full  ">
-        <a
-          className="flex justify-between flex-wrap gap-2 "
-          href={data.loginUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="underline first-letter:capitalize text-2xl tracking-wider text-indigo-50">
-            {data.name}
-          </span>
-          <div className="flex gap-2 text-indigo-700">
-            <div>Score: {data.score}</div>
-          </div>
-        </a>
-        <div className="flex gap-2">
-          <div className="flex gap-2 ">
-            <div className="text-green-300">
-              <span>{data.stats.additions}</span>
-              <span>++</span>
-            </div>
-            <div className="text-red-300">
-              <span>{data.stats.deletions}</span>
-              <span>--</span>
-            </div>
-          </div>
-          <div className="text-indigo-800 flex gap-2 pb-3 ">
-            <span>Coomit</span>
-            <span>{data.stats.commits}</span>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <h4 className="text-xs flex-grow w-full">Projects:</h4>
-          {data.projects_names.map((project, ind) => {
-            return (
-              <>
-                <a
-                  key={ind}
-                  href={data.projects_name_urls[ind]}
-                  className="flex gap-1 items-center underline text-indigo-300 text-xs"
-                >
-                  <StarIcon size={16} />
-                  <span>{project.name}</span>
-                </a>
-              </>
-            );
-          })}
-        </div>
-      </div>
-    </CardWarper>
-  );
-};
-
-interface TypeCardWarper {
-  children: React.ReactNode;
-  className?: string;
 }
 
-export const CardWarper: React.FC<TypeCardWarper> = ({
-  children,
-  className,
-}) => {
+export const DisplayPerson2: React.FC<PersonPlace> = ({ data, place }) => {
+  const insights = Object.entries(data.insights)
+    .filter(([key, value]) => value)
+    .map(([key]) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+
   return (
-    <div
-      className={
-        className ||
-        'flex gap-2 ring-1 ring-indigo-900/80 rounded-md p-4 relative'
-      }
-    >
-      {children}
+    <div className="max-w-sm mx-auto bg-white shadow-lg rounded-lg overflow-hidden h-full">
+      <div className="flex items-center px-6 py-4 bg-gray-900">
+        <Image className="h-12 w-12 rounded-full object-cover" src={data.avatar_url} alt="avatar" width={48} height={48} />
+        <div className="ml-4">
+          <h2 className="text-xl font-semibold text-white"><a href={`https://github.com/${data.name}`} target="_blank">{data.name}</a></h2>
+          <p className="text-gray-400">{data.projects_names.map(p => p.name).join(', ')}</p>
+        </div>
+      </div>
+      <div className="px-6 py-4">
+        <div className="mt-4">
+          <h3 className="text-gray-900 text-lg font-semibold">Contributions</h3>
+          <ul className="mt-2 text-gray-700">
+            <li><strong>Additions:</strong> {data.stats.additions.toLocaleString()}</li>
+            <li><strong>Deletions:</strong> {data.stats.deletions.toLocaleString()}</li>
+            <li><strong>Commits:</strong> {data.stats.commits.toLocaleString()}</li>
+          </ul>
+        </div>
+        <div className="mt-4">
+          <h3 className="text-gray-900 text-lg font-semibold">Projects Contributions</h3>
+          <ul className="mt-2 text-gray-700">
+            {data.projects_names.map((project, index) => (
+              <li key={index}>{project.name}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-4">
+          <h3 className="text-gray-900 text-lg font-semibold">Insightful Contributions</h3>
+          <ul className="mt-2 text-gray-700">
+            {insights.map((insight, index) => (
+              <li key={index}>{insight}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
 
-export const Tabs: React.FC = () => {
-  return (
-    <div className="flex gap-2">
-      <div className="">
-        <input
-          id="all-times"
-          type="radio"
-          name="time-filter"
-          defaultChecked
-          className="hidden peer"
-        />
-        <label
-          htmlFor="all-times"
-          className="block cursor-pointer select-none rounded-lg py-2 text-2xl text-indigo-700 peer-checked:text-indigo-50 peer-checked:underline duration-200 ease-in-out"
-        >
-          All Times
-        </label>
-      </div>
-
-      <div className="">
-        <input
-          id="weekly"
-          type="radio"
-          name="time-filter"
-          className="hidden peer"
-        />
-        <label
-          htmlFor="weekly"
-          className="block cursor-pointer select-none rounded-lg px-4 py-2 text-2xl text-indigo-700 peer-checked:text-indigo-50 peer-checked:underline duration-200 ease-in-out"
-        >
-          Weekly
-        </label>
-      </div>
-
-      <div className="">
-        <input
-          id="monthly"
-          type="radio"
-          name="time-filter"
-          className="hidden peer"
-        />
-        <label
-          htmlFor="monthly"
-          className="block cursor-pointer select-none rounded-lg px-4 py-2 text-2xl text-indigo-700 peer-checked:text-indigo-50 peer-checked:underline duration-200 ease-in-out"
-        >
-          Monthly
-        </label>
-      </div>
-    </div>
-  );
-};
+export default LeaderboardPage;

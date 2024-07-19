@@ -2,8 +2,8 @@
 
 import {
   IProjectsDataResponse,
-  Project,
   ProjectPaginationFilter,
+  SummaryProjectType,
 } from '@/types/project';
 
 export type ProjectPaginationRequest = {
@@ -26,12 +26,32 @@ async function fetchProjectsData({
     },
     body: JSON.stringify({ page, limit, filter }),
   });
-
+  
   // fetch from endpoint POST with page, limit, filter as IProjectsDataResponse
-  const { projects, total, languages, pageLanguages, timestamp } =
-    await response.json();
+  const {
+    projects,
+    total,
+    languages,
+    pageLanguages,
+    timestamp,
+  } =
+  await response.json() as IProjectsDataResponse;
 
-  return { projects, total, languages, pageLanguages, timestamp };
+  const parsedProjects = SummaryProjectType.array().safeParse(projects);
+
+  if (!parsedProjects.success) {
+    throw new Error(`Failed to parse projects: ${parsedProjects.error}`);
+  }
+
+
+  const send = {
+    projects: parsedProjects.data,
+    total: total,
+    languages: languages,
+    pageLanguages: pageLanguages,
+    timestamp: new Date(timestamp),
+  };
+  return send;
 }
 
 export default fetchProjectsData;
