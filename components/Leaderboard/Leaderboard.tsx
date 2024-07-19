@@ -64,9 +64,11 @@ export const ContributionsList: React.FC<{ data: ContributorsInsights }> = ({ da
 
   return (
     <div className="font-inter container mx-auto p-4" id={data.stat === "allTimes" ? "allTimes" : data.stat === "lastMonth" ? "lastMonth" : "lastWeek"}>
-      <p className="text-gray-400 mb-4 text-center">{formatSinceAndUntil(data.since, data.until)}</p>
+      <div className="flex flex-row justify-center">
+        <h6 className="text-gray-400 mb-4 text-center ml-10">{formatSinceAndUntil(data.since, data.until)}</h6>
+        <h6 className='text-center'>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h6>
+      </div>
       <ul className="grid gap-3">
-        <li><h4 className='text-center'>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h4></li>
         {mappedData.filter(p => p.score).map((data, ind) => (
           <li key={data.node_id}>
             <DisplayPerson2 data={data} place={ind + 1} />
