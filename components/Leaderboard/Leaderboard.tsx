@@ -28,6 +28,21 @@ const LeaderboardPage: React.FC = () => {
   const contributors3 = addContributorsInsightsInsights(data[2]);
   return (
     <>
+      <h3 className="text-2xl font-bold mb-2 text-center">Our Contributions In Maakaf</h3>
+      <div className="font-bold flex flex-row mx-auto p-4 ">
+        <a href={"#allTimes"} className="transition duration-300 group">
+          <span >{"All Times Contribution"}</span>
+          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+        </a>
+        <a href={"#lastMonth"} className="transition duration-300 group ml-10 mr-10">
+          <span>{"Last Month Contribution"}</span>
+          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+        </a>
+        <a href={"#lastWeek"} className="transition duration-300 group">
+          <span>{"Last Week Contribution"}</span>
+          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+        </a>
+      </div>
       <ContributionsList data={contributors3} key={`contributors3`} />
       <ContributionsList data={contributors2} key={`contributors2`} />
       <ContributionsList data={contributors} key={`contributors`} />
@@ -48,11 +63,10 @@ export const ContributionsList: React.FC<{ data: ContributorsInsights }> = ({ da
   const mappedData = data.members.map(mapMembers).filter(p => !p.name.includes('[bot]'));
 
   return (
-    <div className="font-inter container mx-auto p-4">
-      <h3 className="text-2xl font-bold mb-4">Our Contributions In Maakaf</h3>
-      <p className="text-gray-400 mb-4">{formatSinceAndUntil(data.since, data.until)}</p>
+    <div className="font-inter container mx-auto p-4" id={data.stat === "allTimes" ? "allTimes" : data.stat === "lastMonth" ? "lastMonth" : "lastWeek"}>
+      <p className="text-gray-400 mb-4 text-center">{formatSinceAndUntil(data.since, data.until)}</p>
       <ul className="grid gap-3">
-        <li><h4>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h4></li>
+        <li><h4 className='text-center'>{data.stat === "allTimes" ? "All Times" : data.stat === "lastMonth" ? "Last Month" : "Last Week"}</h4></li>
         {mappedData.filter(p => p.score).map((data, ind) => (
           <li key={data.node_id}>
             <DisplayPerson2 data={data} place={ind + 1} />
