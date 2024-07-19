@@ -91,7 +91,7 @@ export const DisplayPerson2: React.FC<PersonPlace> = ({ data, place }) => {
       <div className="flex items-center px-6 py-4 bg-gray-900">
         <Image className="h-12 w-12 rounded-full object-cover" src={data.avatar_url} alt="avatar" width={48} height={48} />
         <div className="ml-4">
-          <h2 className="text-xl font-semibold text-white">{data.name}</h2>
+          <h2 className="text-xl font-semibold text-white"><a href={`https://github.com/${data.name}`} target="_blank">{data.name}</a></h2>
           <p className="text-gray-400">{data.projects_names.map(p => p.name).join(', ')}</p>
         </div>
       </div>
