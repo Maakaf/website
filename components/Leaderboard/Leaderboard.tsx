@@ -29,19 +29,21 @@ const LeaderboardPage: React.FC = () => {
   return (
     <>
       <h3 className="text-2xl font-bold mb-2 text-center">Our Contributions In Maakaf</h3>
-      <div className="font-bold flex flex-row mx-auto p-4 ">
-        <a href={"#allTimes"} className="transition duration-300 group">
-          <span >{"All Times Contribution"}</span>
-          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
-        </a>
-        <a href={"#lastMonth"} className="transition duration-300 group ml-10 mr-10">
-          <span>{"Last Month Contribution"}</span>
-          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
-        </a>
-        <a href={"#lastWeek"} className="transition duration-300 group">
-          <span>{"Last Week Contribution"}</span>
-          <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
-        </a>
+      <div className="sticky top-20 dark:bg-gray-700 z-10 shadow-md">
+        <div className="font-bold flex flex-row justify-center p-4">
+          <a href={"#allTimes"} className="transition duration-300 group px-4">
+            <span>{"All Times Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+          <a href={"#lastMonth"} className="transition duration-300 group px-4">
+            <span>{"Last Month Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+          <a href={"#lastWeek"} className="transition duration-300 group px-4">
+            <span>{"Last Week Contribution"}</span>
+            <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-sky-600" />
+          </a>
+        </div>
       </div>
       <ContributionsList data={contributors3} key={`contributors3`} />
       <ContributionsList data={contributors2} key={`contributors2`} />
