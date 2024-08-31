@@ -16,7 +16,9 @@ interface FooterLinkProps {
 
 const FooterLink = ({ href, text }: FooterLinkProps) => (
   <Link href={href}>
-    <p className="p-2 text-lg text-center md:text-right">{text}</p>
+    <p className="p-2 text-lg text-left md:text-left transition duration-200 hover:font-bold dark:hover:text-blue-400 hover:text-blue-600">
+      {text}
+    </p>
   </Link>
 );
 const Footer: React.FC = () => {
